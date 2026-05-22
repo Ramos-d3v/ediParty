@@ -1,1 +1,56 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular;
+  --color-accent: #E11D48; /* Deep Rose */
+}
+
+@layer base {
+  body {
+    @apply bg-[#050505] text-zinc-50 antialiased;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  }
+}
+
+@layer utilities {
+  @keyframes scan {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(400%); }
+  }
+  
+  @keyframes grid {
+    from { transform: rotateX(60deg) translateY(0); }
+    to { transform: rotateX(60deg) translateY(60px); }
+  }
+
+  .animate-scan {
+    animation: scan 4s linear infinite;
+  }
+
+  .animate-grid {
+    animation: grid 2s linear infinite;
+  }
+
+  @keyframes scroll-dash {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+  }
+
+  .animate-scroll-dash {
+    animation: scroll-dash 2s cubic-bezier(0.76, 0, 0.24, 1) infinite;
+  }
+
+  .stroke-text {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Hide scrollbar but maintain functionality */
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

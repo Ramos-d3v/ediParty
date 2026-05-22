@@ -1,137 +1,86 @@
-import React, { useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import gsap from 'gsap';
-import { ShieldAlert } from 'lucide-react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { UserX } from 'lucide-react';
 
-const LensCard = ({ organizer, image, index }) => {
-    const cardRef = useRef(null);
-    const innerRef = useRef(null);
-    
-    // Framer Motion for 3D Parallax on Hover
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-    const mouseXSpring = useSpring(x, { stiffness: 150, damping: 20 });
-    const mouseYSpring = useSpring(y, { stiffness: 150, damping: 20 });
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"]);
+const imageMap = {
+    'enzo ramos': 'enzo.jpeg',
+    'adriano rufino': 'adriano.jpeg',
+    'matteo Rodrigues': 'matteo.jpeg',
+    'vinicius kobo': 'vinicius.jpeg',
+    'henrique adriane': 'henrique.jpeg',
+    'yukio moser': 'yukio.jpeg',
+    'eduardo rodrigues': 'eduardo.jpeg',
+    'lucas condomínio': 'lucas.jpeg',
+    'pedro nogueira': 'nogueira.jpeg',
+    'gustavo forsseto': 'forssetto.jpeg',
+    'otávio saraiva': 'otavio.jpeg',
+    'nicolas bezerra': 'nicolasBezerra.jpeg',
+    'nicolas márcio': 'nicolasMarcio.jpeg',
+    'bruninho': 'bruninho.jpeg',
+    'caue atui': 'caue.jpeg',
+    'gabriel makoto': 'macoto.jpeg',
+    'samuel tiktok': 'samuel.jpeg',
+    'murilo central': 'murilo.jpeg',
+    'pedro dos anjos': 'pedroValesin.jpeg'
+};
 
-    const handleMouseMove = (e) => {
-        // Disable parallax on touch devices to prevent "stuck" card visual bug
-        if (window.matchMedia("(pointer: coarse)").matches) return;
-
-        const rect = cardRef.current.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        x.set(mouseX / width - 0.5);
-        y.set(mouseY / height - 0.5);
-    };
-
-    const handleMouseLeave = () => {
-        if (window.matchMedia("(pointer: coarse)").matches) return;
-        x.set(0);
-        y.set(0);
-    };
-
-    useEffect(() => {
-        // GSAP Context for safe cleanup and memory leak prevention
-        let ctx = gsap.context(() => {
-            gsap.to(innerRef.current, {
-                y: "random(-8, 8)",
-                x: "random(-4, 4)",
-                rotate: "random(-1, 1)",
-                duration: "random(2.5, 4)",
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
-            });
-        });
-
-        return () => ctx.revert(); // Kills all animations inside the context on unmount
-    }, []);
-
-    const imageUrl = image ? new URL(`../../assets/${image}`, import.meta.url).href : `https://ui-avatars.com/api/?name=${encodeURIComponent(organizer.nome)}&background=random&color=fff&size=512`;
+const LensCard = ({ organizer }) => {
+    const imageName = imageMap[organizer.nome];
+    const imageUrl = imageName ? new URL(`../../assets/${imageName}`, import.meta.url).href : null;
 
     return (
-        <motion.div
-            ref={cardRef}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-                rotateY,
-                rotateX,
-                transformStyle: "preserve-3d",
-            }}
-            className="lens-card-trigger group relative w-[280px] sm:w-[350px] md:w-[450px] aspect-[3/4] rounded-3xl shrink-0"
+        <motion.div 
+            initial={{ opacity: 0, x: 20, filter: 'brightness(2) blur(10px)' }}
+            animate={{ opacity: 1, x: 0, filter: 'brightness(1) blur(0px)' }}
+            exit={{ opacity: 0, x: -20, filter: 'brightness(0) blur(5px)' }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="w-full h-full p-10 flex flex-col items-center justify-center relative group"
         >
-            {/* Magnetic Card Body */}
-            <div 
-                ref={innerRef}
-                className="lens-card-inner absolute inset-0 bg-zinc-900/30 border border-white/5 rounded-3xl overflow-hidden shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] transition-colors duration-500 group-hover:border-accent/30"
-            >
-                {/* --- CLASSIFIED LAYER --- */}
-                <div className="classified-layer absolute inset-0 z-20 flex flex-col items-center justify-center p-8 bg-[#050505]">
-                    {/* Dark silhouette photo */}
-                    <img 
-                        src={imageUrl} 
-                        alt="Classified"
-                        className="absolute inset-0 w-full h-full object-cover brightness-0 blur-2xl opacity-20 scale-110"
-                    />
-                    <div className="absolute inset-0 bg-black/40 z-10" />
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 mix-blend-overlay z-10 pointer-events-none" />
-                    
-                    <div className="relative z-20 flex flex-col items-center gap-6">
-                        <div className="p-4 rounded-full bg-accent/5 border border-accent/10">
-                            <ShieldAlert className="text-accent/40 w-10 h-10" strokeWidth={1} />
-                        </div>
-                        <div className="text-center">
-                            <h3 className="text-2xl font-mono font-bold tracking-[0.5em] text-accent/50 uppercase">
-                                LOCKED
-                            </h3>
-                            <p className="text-[9px] font-mono tracking-widest text-zinc-700 uppercase mt-4">
-                                // Authorization Required //
-                            </p>
-                        </div>
-                    </div>
+            {/* Visual Glitch Effect on Mount */}
+            <motion.div 
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0 bg-purple-500 z-50 mix-blend-overlay pointer-events-none"
+            />
 
-                    <div className="absolute top-6 left-6 z-20 px-3 py-1 bg-zinc-950 border border-white/5 rounded-md text-[8px] tracking-[0.2em] text-zinc-500 uppercase font-mono">
-                        P-2026 // {index.toString().padStart(3, '0')}
-                    </div>
-                </div>
-
-                {/* --- REVEALED LAYER --- */}
-                <div className="revealed-layer absolute inset-0 z-30 opacity-0 flex flex-col justify-end p-6 md:p-10 pointer-events-none">
+            <div className="relative w-full max-w-md aspect-[3/4] rounded-2xl overflow-hidden border border-purple-500/20 shadow-[0_0_50px_rgba(168,85,247,0.15)] bg-zinc-950">
+                {imageUrl ? (
                     <img 
                         src={imageUrl} 
                         alt={organizer.nome}
-                        className="absolute inset-0 w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 scale-110 group-hover:scale-100"
+                        loading="lazy"
+                        className="w-full h-full object-cover grayscale brightness-75 contrast-125"
                     />
-                    
-                    {/* Deep gradient for text legibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-[#050505]/60 to-transparent opacity-90" />
-                    
-                    {/* ID Badge */}
-                    <div className="absolute top-6 left-6 z-40 px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-md text-[9px] font-mono font-bold tracking-[0.2em] text-zinc-400 uppercase group-hover:border-accent/40 transition-colors">
-                        Unit {organizer.id.toString().padStart(2, '0')}
+                ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900/50 border-2 border-dashed border-purple-500/10 gap-4">
+                        <UserX size={48} className="text-purple-900/50" />
+                        <div className="text-[10px] text-purple-700 font-mono tracking-[0.3em] animate-pulse uppercase">Image_Not_Found</div>
                     </div>
-
-                    {/* Content */}
-                    <div className="relative z-40 text-left">
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="w-1 h-1 rounded-full bg-accent animate-pulse" />
-                            <span className="text-[9px] font-mono font-bold uppercase tracking-[0.3em] text-zinc-500">
-                                {organizer.time}
-                            </span>
-                        </div>
-                        <h3 className="text-2xl md:text-4xl font-black italic tracking-tighter leading-none uppercase text-white">
-                            {organizer.nome.split(' ')[0]} <br/>
-                            <span className="text-white/40 group-hover:text-white transition-colors">
-                                {organizer.nome.split(' ').slice(1).join(' ')}
-                            </span>
-                        </h3>
-                    </div>
+                )}
+                
+                {/* Tactical Overlay */}
+                <div className="absolute inset-0 border-[20px] border-black/20 pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+                
+                <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black to-transparent">
+                    <div className="text-[10px] text-purple-500 font-bold mb-2">TARGET_ID: {organizer.id.toString().padStart(4, '0')}</div>
+                    <div className="text-2xl font-black text-white uppercase italic tracking-tighter">{organizer.nome}</div>
                 </div>
+
+                {/* Corners */}
+                <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-purple-500" />
+                <div className="absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 border-purple-500" />
+                <div className="absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 border-purple-500" />
+                <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-purple-500" />
+            </div>
+
+            <div className="mt-8 text-center max-w-xs">
+                <div className="text-[9px] text-zinc-500 uppercase tracking-[0.3em] mb-2">Technical Dossier</div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Membro confirmado para a operação EDI'S PARTY 2026. 
+                    Setor: {organizer.time}. Status: Operacional.
+                </p>
             </div>
         </motion.div>
     );

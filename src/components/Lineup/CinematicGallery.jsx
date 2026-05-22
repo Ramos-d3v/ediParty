@@ -1,12 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Users, ShieldAlert, Trophy } from 'lucide-react';
-import LensCard from './LensCard';
-import GoldenRule from './GoldenRule';
-import BackgroundText from './BackgroundText';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Shield, Radar, Target, Hash } from 'lucide-react';
 
-// Data from the original LineupPage
+const TacticalViewer = lazy(() => import('./LensCard'));
+
 const timeStr = `enzo ramos, fiap
 diego bissochi, unesp 
 adriano rufino, unesp 
@@ -66,206 +63,131 @@ const imageMap = {
 };
 
 const CinematicGallery = () => {
-    const railRef = useRef(null);
-    const triggerRef = useRef(null);
-    const [activeName, setActiveName] = useState("");
-
-    useEffect(() => {
-        gsap.registerPlugin(ScrollTrigger);
-        let mm = gsap.matchMedia();
-
-        mm.add("(min-width: 768px)", () => {
-            const cards = gsap.utils.toArray(".lens-card-trigger");
-            
-            const tl = gsap.timeline({
-                scrollTrigger: {
-                    trigger: triggerRef.current,
-                    start: "top top",
-                    end: "+=600%",
-                    pin: true,
-                    scrub: 1,
-                    anticipatePin: 1,
-                }
-            });
-
-            tl.from(".gallery-intro", { opacity: 0, y: 100, duration: 1 });
-
-            // Configuração de Perspectiva 3D para o Rail (Efeito Coverflow)
-            gsap.set(railRef.current, { perspective: 2000, transformStyle: "preserve-3d" });
-
-            const railWidth = railRef.current.scrollWidth;
-            const windowWidth = window.innerWidth;
-            const moveX = railWidth - (windowWidth / 2) + (cards[0].offsetWidth / 2);
-
-            tl.to(railRef.current, { x: -moveX, ease: "none", duration: 10 });
-
-            cards.forEach((card, i) => {
-                const cardInner = card.querySelector(".lens-card-inner");
-                const classifiedLayer = card.querySelector(".classified-layer");
-                const revealedLayer = card.querySelector(".revealed-layer");
-                const cardName = organizers[i].nome;
-
-                // Otimização: Hardware Acceleration
-                gsap.set(cardInner, { force3D: true, willChange: "transform, opacity" });
-
-                ScrollTrigger.create({
-                    trigger: card,
-                    containerAnimation: tl,
-                    start: "left right", // Começa quando entra pela direita
-                    end: "right left",   // Termina quando sai pela esquerda
-                    onUpdate: (self) => {
-                        const progress = self.progress; 
-                        const isPastCenter = progress > 0.5;
-                        const dist = Math.abs(0.5 - progress) * 2; 
-                        const proximity = Math.max(0, 1 - dist);
-                        
-                        let scale = 0.8;
-                        let opacity = 1;
-                        let y = 0;
-                        let rotateY = (0.5 - progress) * 40;
-                        const isRevealed = proximity > 0.95; // Absolute center snapping
-
-                        // 1. Right to Center (Approaching)
-                        if (!isPastCenter) {
-                            scale = 0.8 + (proximity * 0.25); // Scales up to 1.05
-                            opacity = 0.4 + (proximity * 0.6);
-                            y = 0;
-                        } 
-                        // 2. Center to Left (Exiting)
-                        else {
-                            if (isRevealed) {
-                                scale = 1.05;
-                                opacity = 1;
-                                y = 0;
-                            } else {
-                                // Sinking into the abyss
-                                const exitProgress = (progress - 0.5) * 2; // 0 to 1
-                                scale = 1.05 - (exitProgress * 0.45); // shrinks to 0.6
-                                opacity = 1 - Math.min(1, exitProgress * 2.5); // Fades quickly
-                                y = exitProgress * 250; // Sinks downwards
-                            }
-                        }
-
-                        // Apply base spatial transformations
-                        gsap.set(cardInner, {
-                            scale: scale,
-                            opacity: opacity,
-                            y: y,
-                            rotateY: rotateY,
-                            zIndex: isRevealed ? 100 : Math.round(proximity * 50)
-                        });
-
-                        // Visual Reveal Logic (Classes and Layers)
-                        if (isRevealed) {
-                            gsap.to(classifiedLayer, { opacity: 0, duration: 0.3, overwrite: "auto", ease: "power2.out" });
-                            gsap.to(revealedLayer, { opacity: 1, duration: 0.3, overwrite: "auto", ease: "power2.out" });
-                            setActiveName(cardName);
-                        } else {
-                            gsap.to(classifiedLayer, { opacity: 1, duration: 0.3, overwrite: "auto" });
-                            gsap.to(revealedLayer, { opacity: 0, duration: 0.3, overwrite: "auto" });
-                        }
-                    }
-                });
-            });
-        });
-
-        mm.add("(max-width: 767px)", () => {
-            // Fallback for mobile: cards just load normally, no heavy pinning
-            gsap.from(".lens-card-trigger", {
-                scrollTrigger: {
-                    trigger: railRef.current,
-                    start: "top 80%",
-                },
-                y: 50,
-                opacity: 0,
-                stagger: 0.1,
-                duration: 1,
-                ease: "power2.out"
-            });
-
-            gsap.set(".lens-card-inner", { scale: 1, opacity: 1, rotateY: 0 });
-            gsap.set(".classified-layer", { opacity: 0 });
-            gsap.set(".revealed-layer", { opacity: 1 });
-        });
-
-        return () => mm.revert();
-    }, []);
+    const [activeOrganizer, setActiveOrganizer] = useState(null);
 
     return (
-        <section ref={triggerRef} className="relative bg-[#050505] overflow-hidden min-h-[100dvh]">
-            <BackgroundText name={activeName} />
-
-            <div className="relative h-[100dvh] flex flex-col justify-center py-10 md:py-20">
-                <div ref={railRef} className="flex flex-col md:flex-row items-center gap-10 md:gap-32 px-4 md:pl-[10vw] md:pr-[50vw]">
-                    
-                    <div className="gallery-intro flex flex-col justify-center w-full md:min-w-[80vw] shrink-0">
-                        <GoldenRule />
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 md:mt-20">
-                            <StatCard 
-                                icon={<Users size={18} className="text-accent" />} 
-                                label="Elenco" 
-                                value={`${organizers.length} Homens`} 
-                            />
-                            <StatCard 
-                                icon={<ShieldAlert size={18} className="text-zinc-500" />} 
-                                label="Status" 
-                                value="Confidencial" 
-                            />
-                            <StatCard 
-                                icon={<Trophy size={18} className="text-zinc-500" />} 
-                                label="Meta" 
-                                value={`${organizers.length * 2}+`} 
-                            />
+        <section className="relative bg-[#050505] min-h-screen overflow-hidden py-20 px-4 md:px-10 font-mono">
+            {/* Tactical Grid Background */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.07]" 
+                 style={{ 
+                    backgroundImage: `linear-gradient(to right, #a855f7 1px, transparent 1px), linear-gradient(to bottom, #a855f7 1px, transparent 1px)`,
+                    backgroundSize: '60px 60px'
+                 }} 
+            />
+            
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
+                
+                {/* Left side: Tactical List */}
+                <div className="flex flex-col space-y-2">
+                    <header className="mb-10">
+                        <div className="flex items-center gap-3 text-purple-500 mb-4">
+                            <Radar size={20} className="animate-pulse" />
+                            <span className="text-xs font-bold tracking-[0.5em] uppercase">Tactical Intelligence // Elenco 2026</span>
                         </div>
+                        <h2 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white leading-none">
+                            CONVOCAÇÃO <br />
+                            <span className="text-purple-600">RESTRITA</span>
+                        </h2>
+                    </header>
 
-                        <div className="mt-10 md:mt-20">
-                            <h2 className="text-[clamp(2.5rem,10vw,5rem)] md:text-8xl font-black italic uppercase tracking-tighter leading-none text-white">
-                                O Arquivo <br/>
-                                <span className="text-accent">Confidencial.</span>
-                            </h2>
-                            <p className="text-zinc-600 font-mono uppercase tracking-[0.4em] md:tracking-[0.6em] text-[10px] mt-6 flex items-center gap-3">
-                                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                                Access Level: Restricted
-                            </p>
-                        </div>
+                    <div className="flex flex-col border-t border-purple-500/20">
+                        {organizers.map((org) => (
+                            <TacticalRow 
+                                key={org.id} 
+                                org={org} 
+                                isActive={activeOrganizer?.id === org.id}
+                                onFocus={() => setActiveOrganizer(org)}
+                            />
+                        ))}
                     </div>
+                </div>
 
-                    {organizers.map((organizer, index) => (
-                        <LensCard 
-                            key={organizer.id} 
-                            organizer={organizer} 
-                            image={imageMap[organizer.nome] || null}
-                            index={index}
-                        />
-                    ))}
+                {/* Right side: Fixed Preview Area */}
+                <div className="hidden lg:block sticky top-20 h-[80vh] flex items-center justify-center">
+                    <div className="w-full h-full border border-purple-500/10 bg-purple-500/[0.02] rounded-3xl relative overflow-hidden">
+                        <div className="absolute top-6 left-6 flex items-center gap-2 text-[10px] text-purple-500/50">
+                            <Target size={12} />
+                            <span>TARGET_VISUALIZATION_ACTIVE</span>
+                        </div>
+                        
+                        <AnimatePresence mode="wait">
+                            {activeOrganizer ? (
+                                <Suspense fallback={<div className="flex items-center justify-center h-full text-purple-500 animate-pulse text-xs">LOADING_VISUAL...</div>}>
+                                    <TacticalViewer 
+                                        key={activeOrganizer.id}
+                                        organizer={activeOrganizer}
+                                    />
+                                </Suspense>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full text-zinc-800 space-y-4">
+                                    <Shield size={60} strokeWidth={0.5} />
+                                    <p className="text-[10px] tracking-[0.4em] uppercase">Aguardando Seleção de Alvo</p>
+                                </div>
+                            )}
+                        </AnimatePresence>
 
-                    <div className="w-full md:min-w-[50vw] shrink-0 flex flex-col justify-center py-20 md:py-0 md:pl-20">
-                        <h3 className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white/5">
-                            Fim da <br className="hidden md:block" /> Linha
-                        </h3>
-                        <p className="text-zinc-800 font-mono uppercase tracking-widest text-[9px] mt-4">
-                            EDI'S PARTY 2026 // COCKPIT MODE ACTIVE
-                        </p>
+                        {/* Scanline decoration */}
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                            <div className="w-full h-[1px] bg-purple-500/20 absolute top-0 animate-scan" />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="absolute inset-0 z-50 pointer-events-none opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            {/* Mobile Photo Overlay */}
+            <div className="lg:hidden fixed bottom-6 right-6 z-50">
+                <AnimatePresence>
+                    {activeOrganizer && (
+                        <motion.div 
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            className="w-24 h-24 rounded-full border-2 border-purple-600 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.5)]"
+                        >
+                            <img 
+                                src={new URL(`../../assets/${imageMap[activeOrganizer.nome] || 'enzo.jpeg'}`, import.meta.url).href} 
+                                className="w-full h-full object-cover"
+                                alt="mobile-view"
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </section>
     );
 };
 
-const StatCard = ({ icon, label, value }) => (
-    <div className="p-6 rounded-2xl bg-zinc-900/30 border border-white/5 backdrop-blur-md flex flex-col items-start gap-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-        <div className="p-2 rounded-lg bg-black/60 border border-white/5">
-            {icon}
-        </div>
-        <div>
-            <p className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-600">{label}</p>
-            <p className="text-xl font-black text-white italic font-sans">{value}</p>
-        </div>
-    </div>
-);
+const TacticalRow = ({ org, isActive, onFocus }) => {
+    return (
+        <motion.div 
+            onMouseEnter={onFocus}
+            whileInView={() => {
+                if (window.innerWidth < 1024) onFocus();
+            }}
+            viewport={{ amount: 0.8 }}
+            className={`group flex items-center py-4 px-4 border-b border-purple-500/10 cursor-none transition-all duration-300 ${isActive ? 'bg-purple-600/10 border-purple-500/30' : 'hover:bg-zinc-900/50'}`}
+        >
+            <div className={`w-10 text-[10px] font-bold ${isActive ? 'text-purple-500' : 'text-zinc-700'} transition-colors`}>
+                {org.id.toString().padStart(2, '0')}
+            </div>
+            
+            <div className="flex-1 flex flex-col md:flex-row md:items-center gap-2 md:gap-10">
+                <span className={`text-sm md:text-lg font-black uppercase tracking-tighter transition-all duration-500 ${isActive ? 'text-white' : 'text-zinc-600 group-hover:text-zinc-400'}`}>
+                    {isActive ? org.nome : '■■■■■ ■■■■■■■■'}
+                </span>
+                
+                <div className="flex items-center gap-2">
+                    <span className={`text-[9px] uppercase tracking-widest px-2 py-0.5 rounded border transition-colors ${isActive ? 'bg-purple-950/50 border-purple-500/50 text-purple-400' : 'bg-transparent border-zinc-800 text-zinc-700'}`}>
+                        {org.time}
+                    </span>
+                </div>
+            </div>
+
+            <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0'}`}>
+                <Hash size={14} className="text-purple-500" />
+            </div>
+        </motion.div>
+    );
+};
 
 export default CinematicGallery;

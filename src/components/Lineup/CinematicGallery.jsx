@@ -137,20 +137,29 @@ const CinematicGallery = () => {
             {/* Mobile Photo Overlay */}
             <div className="lg:hidden fixed bottom-6 right-6 z-50">
                 <AnimatePresence>
-                    {activeOrganizer && (
-                        <motion.div 
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0, opacity: 0 }}
-                            className="w-24 h-24 rounded-full border-2 border-purple-600 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.5)]"
-                        >
-                            <img 
-                                src={new URL(`../../assets/${imageMap[activeOrganizer.nome] || 'enzo.jpeg'}`, import.meta.url).href} 
-                                className="w-full h-full object-cover"
-                                alt="mobile-view"
-                            />
-                        </motion.div>
-                    )}
+                    {activeOrganizer && (() => {
+                        const imageName = imageMap[activeOrganizer.nome];
+                        const imageUrl = imageName ? new URL(`../../assets/${imageName}`, import.meta.url).href : null;
+                        
+                        return (
+                            <motion.div 
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                className="w-24 h-24 rounded-full border-2 border-purple-600 overflow-hidden shadow-[0_0_20px_rgba(168,85,247,0.5)] bg-zinc-950 flex items-center justify-center"
+                            >
+                                {imageUrl ? (
+                                    <img 
+                                        src={imageUrl} 
+                                        className="w-full h-full object-cover grayscale brightness-75"
+                                        alt="mobile-view"
+                                    />
+                                ) : (
+                                    <Shield size={32} className="text-purple-900/50" />
+                                )}
+                            </motion.div>
+                        );
+                    })()}
                 </AnimatePresence>
             </div>
         </section>

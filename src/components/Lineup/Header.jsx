@@ -1,8 +1,20 @@
-import React from 'react';
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 
 const Header = () => {
+    // Generate stable "pseudo-random" positions using indices to satisfy purity rules
+    const stars = useMemo(() => {
+        return [...Array(20)].map((_, i) => ({
+            id: i,
+            width: ((i * 13) % 4) + 1 + 'px',
+            height: ((i * 13) % 4) + 1 + 'px',
+            top: ((i * 17) % 100) + '%',
+            left: ((i * 23) % 100) + '%',
+            delay: (i * 0.5) % 5 + 's'
+        }));
+    }, []);
+
     return (
         <header className="relative min-h-[80vh] flex flex-col items-center justify-center pt-20 overflow-hidden">
             {/* Animated Grid Floor */}
@@ -61,17 +73,17 @@ const Header = () => {
                 </motion.div>
             </motion.div>
 
-            {/* Decorative Stars/Dots */}
-            {[...Array(20)].map((_, i) => (
+            {/* Decorative Stars/Dots - Optimized with stable values */}
+            {stars.map((star) => (
                 <div 
-                    key={i}
+                    key={star.id}
                     className="absolute bg-white rounded-full opacity-20 animate-pulse"
                     style={{
-                        width: Math.random() * 3 + 'px',
-                        height: Math.random() * 3 + 'px',
-                        top: Math.random() * 100 + '%',
-                        left: Math.random() * 100 + '%',
-                        animationDelay: Math.random() * 5 + 's'
+                        width: star.width,
+                        height: star.height,
+                        top: star.top,
+                        left: star.left,
+                        animationDelay: star.delay
                     }}
                 />
             ))}

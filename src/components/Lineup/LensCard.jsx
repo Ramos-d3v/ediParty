@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { UserX, ShieldAlert, Cpu, X, Radar } from 'lucide-react';
+import { UserX, Cpu, X, Radar } from 'lucide-react';
 
 const imageMap = {
     'enzo ramos': 'enzo.jpeg',

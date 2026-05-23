@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Wrench, Hammer, LayoutDashboard, PartyPopper } from 'lucide-react';
@@ -25,7 +25,7 @@ const PinSection = () => {
 
             const words = [".p-word-1", ".p-word-2", ".p-word-3", ".p-word-4"];
             
-            words.forEach((word, index) => {
+            words.forEach((word) => {
                 // Entrance: Scale down + Blur fade in
                 tl.fromTo(word, 
                     { 
@@ -133,8 +133,8 @@ const PinSection = () => {
                         </p>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                            {pillars.map((pillar, i) => (
-                                <div key={i} className="flex flex-col items-center p-6 rounded-2xl bg-white/[0.03] border border-white/5 group hover:bg-white/[0.05] hover:border-purple-500/30 transition-all duration-500">
+                            {pillars.map((pillar) => (
+                                <div key={pillar.label} className="flex flex-col items-center p-6 rounded-2xl bg-white/[0.03] border border-white/5 group hover:bg-white/[0.05] hover:border-purple-500/30 transition-all duration-500">
                                     <div className="mb-4 text-zinc-500 group-hover:text-purple-400 transition-colors transform group-hover:scale-110 duration-500">
                                         {pillar.icon}
                                     </div>

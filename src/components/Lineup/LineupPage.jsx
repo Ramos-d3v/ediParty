@@ -1,6 +1,5 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Users, ShieldAlert, Trophy } from 'lucide-react';
 import OrganizerCard from './OrganizerCard';
 import GoldenRule from './GoldenRule';

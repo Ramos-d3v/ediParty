@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef, memo } from 'react';
+import { useState, useMemo, useRef, memo } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { Target, X, ChevronRight, Fingerprint } from 'lucide-react';
+import { Target, ChevronRight, Fingerprint } from 'lucide-react';
 import LensCard from './LensCard';
 
 const timeStr = `enzo ramos, fiap

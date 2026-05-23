@@ -1,5 +1,3 @@
-import React from 'react';
-
 const BackgroundText = ({ name }) => {
     return (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">

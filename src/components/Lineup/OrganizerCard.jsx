@@ -1,9 +1,8 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { GraduationCap } from 'lucide-react';
 import gsap from 'gsap';
 
-const OrganizerCard = ({ organizer, image, index }) => {
+const OrganizerCard = ({ organizer, image }) => {
     const cardRef = useRef(null);
     const innerRef = useRef(null);
     

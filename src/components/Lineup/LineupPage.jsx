@@ -67,7 +67,7 @@ const imageMap = {
 
 const LineupPage = () => {
     const totalMen = organizers.length;
-    const targetWomen = totalMen * 2;
+    const targetWomen = totalMen * 1; // Updated to 1:1 rule
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -136,7 +136,7 @@ const LineupPage = () => {
                         className="stat-card-trigger"
                         icon={<ShieldAlert className="w-5 h-5 text-zinc-500" />} 
                         label="Missão Obrigatória" 
-                        value="2 Convidadas / Homem" 
+                        value="1 Convidada / Homem" 
                     />
                     <StatCard 
                         className="stat-card-trigger"

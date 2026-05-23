@@ -1,119 +1,147 @@
-import React, { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 
 const Hero = () => {
-    const sectionRef = useRef(null);
-    const videoRef = useRef(null);
-    const textRef = useRef(null);
-    const indicatorRef = useRef(null);
-    const overlayRef = useRef(null);
+    const [bootSequence, setBootSequence] = useState('initializing');
+    const { scrollYProgress } = useScroll();
+    
+    // Optimized Parallax: Uses transform instead of layout properties
+    const yVideo = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+    const yContent = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+    const opacityContent = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
     useEffect(() => {
-        let ctx = gsap.context(() => {
-            gsap.set(".reveal-text span", { y: "110%", rotate: 5 });
-            gsap.set(overlayRef.current, { opacity: 1 });
-            gsap.set(indicatorRef.current, { opacity: 0, y: 20 });
+        // Fast boot sequence to prevent LCP degradation
+        const timer1 = setTimeout(() => setBootSequence('decrypting'), 600);
+        const timer2 = setTimeout(() => setBootSequence('ready'), 1200);
 
-            const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
-
-            tl.to(overlayRef.current, { 
-                opacity: 0.4, 
-                duration: 2.5, 
-                delay: 0.5 
-            })
-            .to(".reveal-text span", {
-                y: "0%",
-                rotate: 0,
-                duration: 2,
-                stagger: 0.15,
-                ease: "expo.inOut"
-            }, "-=1.5")
-            .to(indicatorRef.current, {
-                opacity: 1,
-                y: 0,
-                duration: 1
-            }, "-=0.5");
-
-            gsap.to(videoRef.current, {
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top top",
-                    end: "bottom top",
-                    scrub: true
-                },
-                yPercent: 20,
-                scale: 1.1
-            });
-
-            gsap.to(indicatorRef.current, {
-                scrollTrigger: {
-                    trigger: sectionRef.current,
-                    start: "top top",
-                    end: "20% top",
-                    scrub: true
-                },
-                opacity: 0,
-                y: -50
-            });
-        }, sectionRef);
-
-        return () => ctx.revert();
+        return () => {
+            clearTimeout(timer1);
+            clearTimeout(timer2);
+        };
     }, []);
 
+    // Frame-perfect staggering variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.15,
+                delayChildren: 0.1 // Wait for slam to finish
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { ease: [0.16, 1, 0.3, 1], duration: 0.8 } }
+    };
+
     return (
-        <section 
-            ref={sectionRef} 
-            className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-black"
-        >
-            <div ref={videoRef} className="absolute inset-0 w-full h-full">
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#0a0a0a] z-10" />
+        <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden bg-zinc-950 font-mono">
+            {/* Background Video with GPU Acceleration */}
+            <motion.div 
+                className="absolute inset-0 w-full h-full will-change-transform"
+                style={{ y: yVideo, transform: 'translateZ(0)' }}
+            >
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/40 to-zinc-950 z-10" />
                 <video 
                     autoPlay 
                     muted 
                     loop 
                     playsInline
-                    className="w-full h-full object-cover opacity-60 scale-105"
+                    className="w-full h-full object-cover opacity-40 scale-105"
                 >
                     <source src="https://cdn.pixabay.com/video/2020/09/24/50901-463876008_large.mp4" type="video/mp4" />
                 </video>
-            </div>
+            </motion.div>
 
-            <div ref={overlayRef} className="absolute inset-0 bg-black z-20 pointer-events-none" />
+            {/* Tactical Boot Sequence Terminal */}
+            <AnimatePresence>
+                {bootSequence !== 'ready' && (
+                    <motion.div 
+                        initial={{ opacity: 1 }}
+                        exit={{ opacity: 0, scale: 1.1 }}
+                        transition={{ duration: 0.4, ease: "easeIn" }}
+                        className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-950"
+                    >
+                        <div className="text-yellow-400 text-xs md:text-sm tracking-[0.5em] font-bold uppercase animate-pulse">
+                            {bootSequence === 'initializing' ? '> SYSTEM BOOT... INITIALIZING PROTOCOL' : '> DECRYPTING ROSTER... STANDBY'}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-            <div className="container relative z-30 px-4 text-center">
-                <h1 ref={textRef} className="reveal-text flex flex-col items-center select-none">
-                    <span className="overflow-hidden block py-2">
-                        <span className="inline-block text-white/40 text-[clamp(0.75rem,2vw,1.25rem)] font-black uppercase tracking-[0.5em] md:tracking-[0.8em] mb-2 md:mb-4">
-                            Organização Oficial
-                        </span>
-                    </span>
-                    <span className="overflow-hidden block">
-                        <span className="inline-block text-[18vw] md:text-[clamp(5rem,12vw,10rem)] font-black leading-[0.8] uppercase italic tracking-tighter text-white">
+            {/* Main Content Reveal */}
+            {bootSequence === 'ready' && (
+                <motion.div 
+                    className="container relative z-30 px-4 flex flex-col items-center justify-center will-change-transform"
+                    style={{ y: yContent, opacity: opacityContent, transform: 'translateZ(0)' }}
+                >
+                    {/* The Slam Effect for Main Title */}
+                    <motion.h1 
+                        initial={{ scale: 1.5, opacity: 0, y: -50 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        transition={{ 
+                            duration: 0.8, 
+                            ease: [0.16, 1, 0.3, 1], // Expo-out curve for heavy impact
+                            opacity: { duration: 0.4 } // Fade in quickly, scale down slowly
+                        }}
+                        className="flex flex-col items-center select-none text-center will-change-transform"
+                    >
+                        <span className="text-[20vw] md:text-[clamp(6rem,15vw,12rem)] font-black leading-[0.8] uppercase italic tracking-tighter text-white drop-shadow-2xl">
                             EDI'S
                         </span>
-                    </span>
-                    <span className="overflow-hidden block">
-                        <span className="inline-block text-[18vw] md:text-[clamp(5rem,12vw,10rem)] font-black leading-[0.8] uppercase italic tracking-tighter text-accent">
+                        <span className="text-[20vw] md:text-[clamp(6rem,15vw,12rem)] font-black leading-[0.8] uppercase italic tracking-tighter text-purple-500 drop-shadow-[0_0_40px_rgba(168,85,247,0.4)]">
                             PARTY
                         </span>
+                    </motion.h1>
+
+                    {/* Staggered Secondary Elements */}
+                    <motion.div 
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="mt-8 flex flex-col items-center gap-6"
+                    >
+                        <motion.div variants={itemVariants} className="flex items-center gap-3 bg-zinc-900/50 border border-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+                            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                            <span className="text-[10px] md:text-xs text-yellow-400 tracking-[0.4em] uppercase font-bold">
+                                Missão Crítica_2026
+                            </span>
+                        </motion.div>
+                        
+                        <motion.p variants={itemVariants} className="text-zinc-500 text-xs md:text-sm uppercase tracking-widest max-w-sm text-center">
+                            Apenas operacionais autorizados. Acesso restrito ao elenco confirmado.
+                        </motion.p>
+                    </motion.div>
+                </motion.div>
+            )}
+
+            {/* Scroll Indicator */}
+            {bootSequence === 'ready' && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.5, duration: 1 }}
+                    className="absolute bottom-8 md:bottom-12 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-4"
+                >
+                    <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-600">
+                        Initiate Descent
                     </span>
-                </h1>
-            </div>
+                    <div className="w-[1px] h-12 md:h-16 bg-gradient-to-b from-purple-500/50 to-transparent relative overflow-hidden">
+                        <motion.div 
+                            animate={{ y: ["-100%", "200%"] }}
+                            transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                            className="absolute top-0 left-0 w-full h-1/2 bg-purple-500" 
+                        />
+                    </div>
+                </motion.div>
+            )}
 
-            <div 
-                ref={indicatorRef}
-                className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3 md:gap-4"
-            >
-                <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500">
-                    Explore the Elenco
-                </span>
-                <div className="w-[1px] h-10 md:h-16 bg-gradient-to-b from-accent/50 to-transparent relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1/2 bg-accent animate-scroll-dash" />
-                </div>
-            </div>
-
-            <div className="absolute inset-0 z-40 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            {/* Hardware-friendly Noise (Static overlay) */}
+            <div className="absolute inset-0 z-40 pointer-events-none opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" style={{ transform: 'translateZ(0)' }} />
         </section>
     );
 };

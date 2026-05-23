@@ -1,126 +1,148 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Wrench, Hammer, LayoutDashboard, GlassWater } from 'lucide-react';
+import { Wrench, Hammer, LayoutDashboard, PartyPopper } from 'lucide-react';
 
 const PinSection = () => {
     const triggerRef = useRef(null);
-    const textContainerRef = useRef(null);
+    const containerRef = useRef(null);
+    const cardRef = useRef(null);
 
     useEffect(() => {
         gsap.registerPlugin(ScrollTrigger);
-        let mm = gsap.matchMedia();
-
-        mm.add("(min-width: 768px)", () => {
+        
+        const ctx = gsap.context(() => {
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: triggerRef.current,
                     start: "top top",
-                    end: "+=250%",
+                    end: "+=350%",
                     pin: true,
                     scrub: 1,
+                    anticipatePin: 1
                 }
             });
 
-            // Asymmetric Typographic Reveal
-            tl.from(".word-1", { x: "-20vw", opacity: 0, filter: "blur(20px)", duration: 1.5, ease: "expo.out" })
-              .to(".word-1", { opacity: 0, filter: "blur(10px)", duration: 1, ease: "expo.in" }, "+=0.5")
-              
-              .from(".word-2", { x: "20vw", opacity: 0, filter: "blur(20px)", duration: 1.5, ease: "expo.out" }, "-=0.5")
-              .to(".word-2", { opacity: 0, filter: "blur(10px)", duration: 1, ease: "expo.in" }, "+=0.5")
-              
-              .from(".word-3", { y: "10vh", opacity: 0, filter: "blur(20px)", duration: 1.5, ease: "expo.out" }, "-=0.5")
-              .to(".word-3", { opacity: 0, filter: "blur(10px)", duration: 1, ease: "expo.in" }, "+=0.5")
-              
-              .from(".word-4", { scale: 1.5, opacity: 0, filter: "blur(20px)", duration: 1.5, ease: "expo.out" }, "-=0.5")
-              .to(".word-4", { opacity: 0, filter: "blur(10px)", duration: 1, ease: "expo.in" }, "+=0.5")
-
-              .from(".rule-card", {
-                y: 100,
-                opacity: 0,
-                scale: 0.95,
-                filter: "blur(10px)",
-                duration: 2,
-                ease: "power4.out"
-            }, ">-0.5");
-        });
-
-        mm.add("(max-width: 767px)", () => {
-            gsap.from(".rule-card", {
-                scrollTrigger: {
-                    trigger: ".rule-card",
-                    start: "top 85%",
-                },
-                y: 40,
-                opacity: 0,
-                duration: 1.2,
-                ease: "power3.out"
+            const words = [".p-word-1", ".p-word-2", ".p-word-3", ".p-word-4"];
+            
+            words.forEach((word, index) => {
+                // Entrance: Scale down + Blur fade in
+                tl.fromTo(word, 
+                    { 
+                        scale: 4, 
+                        opacity: 0, 
+                        filter: "blur(20px)",
+                        letterSpacing: "1em"
+                    }, 
+                    { 
+                        scale: 1, 
+                        opacity: 1, 
+                        filter: "blur(0px)",
+                        letterSpacing: "-0.05em",
+                        duration: 1, 
+                        ease: "power2.out" 
+                    }
+                )
+                // Hold briefly
+                .to(word, { duration: 0.5 })
+                // Exit: Explode letter spacing + Fade out
+                .to(word, { 
+                    letterSpacing: "2em", 
+                    opacity: 0, 
+                    scale: 0.8,
+                    filter: "blur(10px)",
+                    duration: 1, 
+                    ease: "power2.in" 
+                }, "+=0.2");
             });
-        });
 
-        return () => mm.revert();
+            // Card Reveal
+            tl.fromTo(cardRef.current, 
+                { 
+                    y: 100, 
+                    opacity: 0, 
+                    scale: 0.9,
+                    filter: "blur(10px)"
+                }, 
+                { 
+                    y: 0, 
+                    opacity: 1, 
+                    scale: 1,
+                    filter: "blur(0px)",
+                    duration: 1.5, 
+                    ease: "expo.out" 
+                },
+                "-=0.5"
+            );
+        }, triggerRef);
+
+        return () => ctx.revert();
     }, []);
 
-    const steps = [
-        { label: "Arrumar", icon: <Wrench size={20} /> },
-        { label: "Construir", icon: <Hammer size={20} /> },
-        { label: "Organizar", icon: <LayoutDashboard size={20} /> },
-        { label: "Aproveitar", icon: <GlassWater size={20} className="text-accent" /> }
+    const pillars = [
+        { label: "Arrumar", icon: <Wrench size={18} />, desc: "Preparar o terreno" },
+        { label: "Construir", icon: <Hammer size={18} />, desc: "Erguer a estrutura" },
+        { label: "Organizar", icon: <LayoutDashboard size={18} />, desc: "Orquestrar o caos" },
+        { label: "Aproveitar", icon: <PartyPopper size={18} className="text-purple-500" />, desc: "Viver o épico" }
     ];
 
     return (
-        <section ref={triggerRef} className="relative min-h-[100dvh] bg-[#050505] flex items-center justify-center overflow-hidden">
+        <section ref={triggerRef} className="relative min-h-screen bg-[#050505] flex items-center justify-center overflow-hidden">
+            {/* Background Atmosphere */}
             <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black z-10" />
-                <img 
-                    src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=2000" 
-                    className="w-full h-full object-cover opacity-5 grayscale brightness-50" 
-                    alt="Atmosphere"
-                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10" />
+                <div className="absolute inset-0 bg-purple-900/10 mix-blend-soft-light" />
             </div>
 
-            {/* Kinetic Typography Layer */}
-            <div ref={textContainerRef} className="relative z-20 text-center w-full h-full flex items-center justify-center">
-                <div className="absolute inset-0 flex items-center justify-center whitespace-nowrap pointer-events-none">
-                    <h2 className="word-1 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-white opacity-0 absolute left-[10%] top-[20%]">
+            <div ref={containerRef} className="relative z-20 w-full h-full flex items-center justify-center px-4">
+                {/* Kinetic Typography Layer */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <h2 className="p-word-1 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-white opacity-0 absolute will-change-transform">
                         ARRUMAR
                     </h2>
-                    <h2 className="word-2 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-transparent opacity-0 absolute right-[10%] bottom-[30%]" 
-                        style={{ WebkitTextStroke: '1px rgba(255,255,255,0.4)' }}>
+                    <h2 className="p-word-2 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-transparent opacity-0 absolute will-change-transform"
+                        style={{ WebkitTextStroke: '2px rgba(255,255,255,0.8)' }}>
                         CONSTRUIR
                     </h2>
-                    <h2 className="word-3 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-white opacity-0 absolute left-[15%] bottom-[20%]">
+                    <h2 className="p-word-3 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-white opacity-0 absolute will-change-transform">
                         ORGANIZAR
                     </h2>
-                    <h2 className="word-4 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-accent opacity-0 absolute">
+                    <h2 className="p-word-4 text-[12vw] md:text-[15vw] font-black italic uppercase tracking-tighter text-purple-500 opacity-0 absolute will-change-transform drop-shadow-[0_0_30px_rgba(168,85,247,0.5)]">
                         APROVEITAR
                     </h2>
                 </div>
 
-                {/* Final punchy card - Bento Style */}
-                <div className="rule-card relative bg-zinc-900/30 border border-white/10 backdrop-blur-2xl p-8 md:p-14 rounded-3xl max-w-2xl mx-auto shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] border-t-white/20">
-                    <div className="flex flex-col items-center">
-                        <span className="inline-block px-3 py-1 bg-accent/10 border border-accent/20 text-accent font-mono text-[9px] uppercase tracking-[0.4em] rounded-md mb-8">
-                            Status: Missão Crítica
-                        </span>
-                        
-                        <h3 className="text-4xl md:text-7xl font-black italic uppercase tracking-tighter leading-[0.85] text-white mb-6">
-                            O Preço do <br/>
-                            <span className="text-accent">Épico.</span>
+                {/* The Price of Epic Card */}
+                <div ref={cardRef} className="relative bg-zinc-950/50 border border-white/10 backdrop-blur-3xl p-8 md:p-12 rounded-[2rem] max-w-3xl w-full shadow-2xl opacity-0 will-change-transform">
+                    <div className="flex flex-col items-center text-center">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-8">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                            </span>
+                            <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest">Protocolo de Elite Ativado</span>
+                        </div>
+
+                        <h3 className="text-5xl md:text-8xl font-black italic uppercase tracking-tighter leading-[0.8] text-white mb-6">
+                            O Preço do <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">Épico.</span>
                         </h3>
-                        
-                        <p className="text-zinc-500 text-sm md:text-base font-medium leading-relaxed max-w-md mx-auto mb-12">
-                            Convocados para transformar o caos em estrutura. O direito à noite é conquistado através da ação.
+
+                        <p className="text-zinc-400 text-base md:text-lg font-medium leading-relaxed max-w-xl mb-12">
+                            A glória não é dada, é conquistada. Para viver a melhor noite do ano, o elenco convocado deve colocar a mão na massa. Transformamos o caos em estrutura.
                         </p>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full">
-                            {steps.map((step, i) => (
-                                <div key={i} className="flex flex-col items-start p-4 rounded-2xl bg-white/[0.02] border border-white/5 group hover:border-accent/30 transition-all duration-500">
-                                    <div className="mb-4 text-accent/60 group-hover:text-accent transition-all">
-                                        {step.icon}
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                            {pillars.map((pillar, i) => (
+                                <div key={i} className="flex flex-col items-center p-6 rounded-2xl bg-white/[0.03] border border-white/5 group hover:bg-white/[0.05] hover:border-purple-500/30 transition-all duration-500">
+                                    <div className="mb-4 text-zinc-500 group-hover:text-purple-400 transition-colors transform group-hover:scale-110 duration-500">
+                                        {pillar.icon}
                                     </div>
-                                    <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-zinc-600 group-hover:text-zinc-300 transition-colors">
-                                        {step.label}
+                                    <span className="text-xs font-bold uppercase tracking-widest text-zinc-200 mb-1">
+                                        {pillar.label}
+                                    </span>
+                                    <span className="text-[9px] font-mono text-zinc-500 uppercase">
+                                        {pillar.desc}
                                     </span>
                                 </div>
                             ))}
@@ -129,8 +151,9 @@ const PinSection = () => {
                 </div>
             </div>
 
-            {/* Ambient Noise */}
-            <div className="absolute inset-0 z-50 pointer-events-none opacity-[0.02] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            {/* Cinematic Noise & Overlay */}
+            <div className="absolute inset-0 z-50 pointer-events-none opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+            <div className="absolute inset-0 z-40 pointer-events-none bg-gradient-to-t from-black via-transparent to-black" />
         </section>
     );
 };

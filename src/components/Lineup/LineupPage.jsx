@@ -32,36 +32,43 @@ felipe pontes, anglo
 samuel tiktok, bolivia
 murilo central , usp`;
 
-const organizers = timeStr.split('\n').map((linha, index) => {
-    const [nome, time] = linha.split(',');
-    return {
-        id: index + 1,
-        nome: nome.trim(),
-        time: time.trim(),
-    };
-});
+const organizers = timeStr.split('\n')
+    .map((linha) => {
+        const [nome, time] = linha.split(',');
+        return {
+            nome: nome.trim(),
+            time: time.trim(),
+        };
+    })
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+    .map((org, index) => ({
+        ...org,
+        id: index + 1
+    }));
 
 // Image mapping based on available assets
 const imageMap = {
     'enzo ramos': 'enzo.jpeg',
+    'diego bissochi': 'diegoBissochi.jpeg',
     'adriano rufino': 'adriano.jpeg',
     'matteo Rodrigues': 'matteo.jpeg',
+    'whayke senna': 'whaykeSena.jpeg',
     'vinicius kobo': 'vinicius.jpeg',
     'henrique adriane': 'henrique.jpeg',
     'yukio moser': 'yukio.jpeg',
     'eduardo rodrigues': 'eduardo.jpeg',
+    'pedro dos anjos': 'pedroValesin.jpeg',
     'lucas condomínio': 'lucas.jpeg',
     'pedro nogueira': 'nogueira.jpeg',
     'gustavo forsseto': 'forssetto.jpeg',
     'otávio saraiva': 'otavio.jpeg',
     'nicolas bezerra': 'nicolasBezerra.jpeg',
-    'nicolas márcio': 'marcio.jpeg',
+    'nicolas márcio': 'nicolasMarcio.jpeg',
     'bruninho': 'bruninho.jpeg',
     'caue atui': 'caue.jpeg',
     'gabriel makoto': 'macoto.jpeg',
     'samuel tiktok': 'samuel.jpeg',
-    'murilo central': 'murilo.jpeg',
-    'pedro dos anjos': 'pedroValesin.jpeg'
+    'murilo central': 'murilo.jpeg'
 };
 
 const LineupPage = () => {

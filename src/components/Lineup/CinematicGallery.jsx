@@ -30,14 +30,19 @@ felipe pontes, anglo
 samuel tiktok, bolivia
 murilo central , usp`;
 
-const organizers = timeStr.split('\n').map((linha, index) => {
-    const [nome, time] = linha.split(',');
-    return {
-        id: index + 1,
-        nome: nome.trim(),
-        time: time.trim(),
-    };
-});
+const organizers = timeStr.split('\n')
+    .map((linha) => {
+        const [nome, time] = linha.split(',');
+        return {
+            nome: nome.trim(),
+            time: time.trim(),
+        };
+    })
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'))
+    .map((org, index) => ({
+        ...org,
+        id: index + 1
+    }));
 
 const CinematicGallery = () => {
     const [activeId, setActiveId] = useState(null); // null means no selection on mobile

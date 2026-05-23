@@ -3,12 +3,15 @@ import { UserX, Cpu, X, Radar } from 'lucide-react';
 
 const imageMap = {
     'enzo ramos': 'enzo.jpeg',
+    'diego bissochi': 'diegoBissochi.jpeg',
     'adriano rufino': 'adriano.jpeg',
     'matteo Rodrigues': 'matteo.jpeg',
+    'whayke senna': 'whaykeSena.jpeg',
     'vinicius kobo': 'vinicius.jpeg',
     'henrique adriane': 'henrique.jpeg',
     'yukio moser': 'yukio.jpeg',
     'eduardo rodrigues': 'eduardo.jpeg',
+    'pedro dos anjos': 'pedroValesin.jpeg',
     'lucas condomínio': 'lucas.jpeg',
     'pedro nogueira': 'nogueira.jpeg',
     'gustavo forsseto': 'forssetto.jpeg',
@@ -19,8 +22,7 @@ const imageMap = {
     'caue atui': 'caue.jpeg',
     'gabriel makoto': 'macoto.jpeg',
     'samuel tiktok': 'samuel.jpeg',
-    'murilo central': 'murilo.jpeg',
-    'pedro dos anjos': 'pedroValesin.jpeg'
+    'murilo central': 'murilo.jpeg'
 };
 
 const LensCard = ({ organizer, mode = 'desktop', onClose }) => {

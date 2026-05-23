@@ -7,6 +7,7 @@ import PinSection from './components/Lineup/PinSection';
 import CinematicGallery from './components/Lineup/CinematicGallery';
 import CustomCursor from './components/Lineup/CustomCursor';
 import GoldenRule from './components/Lineup/GoldenRule';
+import TacticalRSVP from './components/Lineup/TacticalRSVP';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,6 +63,7 @@ function App() {
 
       {/* Retorna o layout tático original com lista e preview stick lateral */}
       <CinematicGallery />
+      <TacticalRSVP />
     </div>
   );
 }

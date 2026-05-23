@@ -73,24 +73,10 @@ const imageMap = {
 
 const LineupPage = () => {
     const totalMen = organizers.length;
-    const targetWomen = totalMen * 1; // Updated to 1:1 rule
     const containerRef = useRef(null);
 
     useEffect(() => {
         let ctx = gsap.context(() => {
-            // Reveal Stats Cards
-            gsap.from(".stat-card-trigger", {
-                scrollTrigger: {
-                    trigger: ".stats-grid",
-                    start: "top 85%",
-                },
-                y: 30,
-                opacity: 0,
-                stagger: 0.1,
-                duration: 1,
-                ease: "power3.out"
-            });
-
             // Section Header Animation
             gsap.from(".lineup-title", {
                 scrollTrigger: {
@@ -130,30 +116,8 @@ const LineupPage = () => {
             <section className="container mx-auto px-4 py-32 relative z-10">
                 <GoldenRule />
 
-                {/* Stats Section - Bento Grid */}
-                <div className="stats-grid grid grid-cols-1 md:grid-cols-3 gap-4 mb-32">
-                    <StatCard 
-                        className="stat-card-trigger"
-                        icon={<Users className="w-5 h-5 text-accent" />} 
-                        label="Elenco Convocado" 
-                        value={`${totalMen} Homens`} 
-                    />
-                    <StatCard 
-                        className="stat-card-trigger"
-                        icon={<ShieldAlert className="w-5 h-5 text-zinc-500" />} 
-                        label="Missão Obrigatória" 
-                        value="1 Convidada / Homem" 
-                    />
-                    <StatCard 
-                        className="stat-card-trigger"
-                        icon={<Trophy className="w-5 h-5 text-zinc-500" />} 
-                        label="Meta do Evento" 
-                        value={`${targetWomen}+`} 
-                    />
-                </div>
-
                 {/* The Lineup Grid Header */}
-                <div className="mb-20 flex items-end justify-between border-b border-white/5 pb-10">
+                <div className="mb-20 flex items-end justify-between border-b border-white/5 pb-10 mt-20">
                     <div className="lineup-title">
                         <h2 className="text-4xl md:text-8xl font-black italic tracking-tighter uppercase leading-none text-white">
                             O Elenco <br/>
@@ -161,8 +125,8 @@ const LineupPage = () => {
                         </h2>
                     </div>
                     <div className="text-right hidden md:block">
-                        <p className="text-zinc-600 font-mono font-bold uppercase tracking-[0.3em] text-[9px] mb-2">// Status: Preparação</p>
-                        <p className="text-white font-black uppercase text-2xl italic tracking-tighter">LEVEL 01 ACTIVE</p>
+                        <p className="text-zinc-600 font-mono font-bold uppercase tracking-[0.3em] text-[9px] mb-2">// Status: Operacional</p>
+                        <p className="text-white font-black uppercase text-2xl italic tracking-tighter">{totalMen} UNIDADES ATIVAS</p>
                     </div>
                 </div>
 

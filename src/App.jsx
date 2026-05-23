@@ -8,6 +8,7 @@ import CinematicGallery from './components/Lineup/CinematicGallery';
 import CustomCursor from './components/Lineup/CustomCursor';
 import GoldenRule from './components/Lineup/GoldenRule';
 import TacticalRSVP from './components/Lineup/TacticalRSVP';
+import LoreSection from './components/Lineup/LoreSection';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -55,6 +56,7 @@ function App() {
       <CustomCursor />
       <Hero />
       <PinSection />
+      <LoreSection />
       
       {/* Container para alinhar a Regra de Ouro antes da Galeria Cinematográfica */}
       <div className="max-w-7xl mx-auto px-4 md:px-10 pt-20">

@@ -289,7 +289,7 @@ const TacticalRSVP = () => {
                                     </div>
 
                                     <a 
-                                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`[ALVO: ${selectedUser.nome.toUpperCase()}] // Missão Aceite! 🫡 Ciente da escolta e pronto pra Operação Limpeza. Tamo junto!`)}`}
+                                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`[ALVO: ${selectedUser.nome.toUpperCase()}] // Missão Aceite! 🫡 Ciente da escolta obrigatória e pronto para a Operação Limpeza (Zero Rastros). O esquadrão pode contar comigo!`)}`}
                                         target="_blank" rel="noopener noreferrer"
                                         className="w-full max-sm bg-green-500 text-white p-6 rounded-[2rem] font-black italic uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-green-600 transition-all shadow-2xl active:scale-95 group"
                                     >

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { Users, ShieldAlert, Trophy } from 'lucide-react';
 import OrganizerCard from './OrganizerCard';
 import GoldenRule from './GoldenRule';
 
@@ -154,19 +153,5 @@ const LineupPage = () => {
         </div>
     );
 };
-
-const StatCard = ({ icon, label, value, className }) => (
-    <div 
-        className={`p-8 rounded-3xl bg-zinc-900/30 border border-white/5 backdrop-blur-xl flex flex-col gap-8 group transition-all duration-500 hover:border-accent/20 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] ${className}`}
-    >
-        <div className="w-12 h-12 rounded-xl bg-black/60 border border-white/5 flex items-center justify-center group-hover:bg-accent/5 transition-all duration-500">
-            {icon}
-        </div>
-        <div>
-            <p className="text-[9px] font-mono font-bold uppercase tracking-[0.4em] text-zinc-600 mb-3">{label}</p>
-            <p className="text-3xl font-black text-zinc-100 italic tracking-tighter">{value}</p>
-        </div>
-    </div>
-);
 
 export default LineupPage;
